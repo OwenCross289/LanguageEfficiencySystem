@@ -27,12 +27,7 @@ public class LanguageLearningCalculator
         modifier = AccountForKnownLanguages(dev.KnownLanguages, modifier);
         modifier = AccountForYearsOfExperience(dev.YearsOfExperience, modifier);
 
-        //Unsure what to do if the scenario goes over the limit
-        //if (modifier > (1 / percentageMinimum))
-        //{
-        //    throw new ArithmeticException("Owen cannot do maths");
-        //}
-
+        //Assumed to round if they are the next Zuck
         const double percentageMinimum = 0.2;
         return Math.Max(_averageDaysToLearn / modifier, _averageDaysToLearn * percentageMinimum);
     }
