@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace LanguageEfficiencySystem.Models;
 
 public class TeamBuilder
@@ -9,10 +11,17 @@ public class TeamBuilder
     public IReadOnlyCollection<LanguageLearningCalculatorResult> RunnersUp { get; }
     public double TimeBeforeOperational { get; }
 
+    //Can add validation if there are not enough developers for the requirements
     public TeamBuilder(int numberOfDevelopersRequired, IEnumerable<Developer> candidates,
         LanguageLearningCalculator calculator)
     {
         _calculator = calculator;
+        candidates = candidates.ToList();
+        
+        if (numberOfDevelopersRequired > candidates.Count())
+        {
+            throw new ValidationException(message: "Not enough developers to build the team");
+        }
 
         var orderedCandidates = OrderCandidates(candidates).ToList();
         Team = orderedCandidates.Take(numberOfDevelopersRequired).ToList().AsReadOnly();
