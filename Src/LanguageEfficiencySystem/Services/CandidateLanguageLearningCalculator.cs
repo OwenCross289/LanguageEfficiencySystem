@@ -1,26 +1,32 @@
-namespace LanguageEfficiencySystem.Models;
+using LanguageEfficiencySystem.Models;
 
-public class LanguageLearningCalculator
+namespace LanguageEfficiencySystem.Services;
+
+public class CandidateLanguageLearningCalculator
 {
     private readonly int _averageDaysToLearn;
     private readonly IEnumerable<Language> _languagesToLearn;
 
-    public LanguageLearningCalculator(int averageDaysToLearn, IEnumerable<Language> languagesToLearn)
+    public CandidateLanguageLearningCalculator(int averageDaysToLearn, IEnumerable<Language> languagesToLearn)
     {
         _averageDaysToLearn = averageDaysToLearn;
         _languagesToLearn = languagesToLearn;
     }
 
-    public LanguageLearningCalculatorResult TimesToLearn(Developer dev)
+    public CandidateLanguageLearningResult CalculateCandidateEfficiency(Developer dev)
     {
         var timesToLearn = _languagesToLearn.ToDictionary(language => language, language => TimeToLearn(dev, language));
-        return new LanguageLearningCalculatorResult(dev, timesToLearn, TotalTimeToLearn(timesToLearn));
+        return new CandidateLanguageLearningResult(dev, timesToLearn, TotalTimeToLearn(timesToLearn));
     }
 
     private double TimeToLearn(Developer dev, Language languageToLearn)
     {
-        if (LanguageIsKnown(dev, languageToLearn)) return 0;
+        if (LanguageIsKnown(dev, languageToLearn))
+        {
+            return 0;
+        }
 
+        //Could use builder stuff but it would need a record with one value in it. Just seems overkill and weird
         var modifier = 1.0;
         modifier = AccountForCustomLanguageRules(languageToLearn, dev, modifier);
         modifier = AccountForAge(dev.Age, modifier);
@@ -62,8 +68,7 @@ public class LanguageLearningCalculator
     private static double AccountForKnownLanguages(IEnumerable<Language> knownLanguages, double modifier)
     {
         const double percentagePerLanguage = 1.08;
-        var count = knownLanguages.Count();
-        return modifier * Math.Pow(percentagePerLanguage, count);
+        return modifier * Math.Pow(percentagePerLanguage, knownLanguages.Count());
     }
 
     private static double AccountForYearsOfExperience(int yearsOfExperience, double modifier)

@@ -1,85 +1,44 @@
-using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
-using FluentAssertions;
 using LanguageEfficiencySystem.Models;
+using LanguageEfficiencySystem.Services;
 
 namespace LanguageEfficiencySystem.Tests;
 
 public class TeamBuilderTests
 {
-    private readonly List<Developer> _developers = new()
-    {
-        new("Kari", 32, 10, new ReadOnlyCollection<Language>(new List<Language>
-        {
-            Language.CSharp,
-            Language.Ruby,
-            Language.Cpp,
-            Language.Java
-        })),
-        new("Lars", 22, 1, new ReadOnlyCollection<Language>(new List<Language>
-        {
-            Language.Cpp,
-            Language.JavaScript,
-            Language.Python
-        })),
-        new("Johan", 42, 22, new ReadOnlyCollection<Language>(new List<Language>
-        {
-            Language.Sql,
-            Language.JavaScript
-        })),
-        new("Nils", 28, 4, new ReadOnlyCollection<Language>(new List<Language>
-        {
-            Language.JavaScript,
-            Language.Java,
-            Language.CSharp,
-            Language.Php
-        })),
-        new("Karl", 52, 30, new ReadOnlyCollection<Language>(new List<Language>
-        {
-            Language.Cobol,
-            Language.Java,
-            Language.Vb6
-        })),
-        new("Anna", 38, 10, new ReadOnlyCollection<Language>(new List<Language>
-        {
-            Language.Python,
-            Language.Php,
-            Language.MySql,
-            Language.Ruby,
-            Language.Xml,
-            Language.Html
-        }))
-    };
-    
     [Theory]
     [InlineData(1)]
     [InlineData(2)]
     [InlineData(3)]
     [InlineData(4)]
     [InlineData(5)]
-    public void Ctor_WhenCreatedTooManyCandidates_ThenTheRequiredNumberOfCandidatesInTeamAndRestInRunnersUp(int requiredDevelopers)
+    public void Ctor_WhenCreatedWithTooManyCandidates_ThenTheRequiredNumberOfCandidatesAreInTeamAndTheRestInRunnersUp(int requiredDevelopers)
     {
-        //Arrange + Act
-        var sut = new TeamBuilder(requiredDevelopers,
-            _developers,
-            new LanguageLearningCalculator(15, new List<Language>() { Language.CSharp }));
+        //Arrange
+        var calculator = new CandidateLanguageLearningCalculator(15, new List<Language>() { Language.CSharp });
+        var ranker = new CandidateRanker(TestHelpers.Developers, calculator);
+        
+        //Act
+        var sut = new TeamBuilder(requiredDevelopers, ranker);
 
         //Assert
         sut.Team.Count().Should().Be(requiredDevelopers);
-        sut.RunnersUp.Count().Should().Be(_developers.Count - sut.Team.Count());
+        sut.RunnersUp.Count().Should().Be(TestHelpers.Developers.Count - sut.Team.Count());
         sut.Team.Should().NotContain(sut.RunnersUp);
     }
     
     [Fact]
     public void Ctor_WhenCreatedWithTheExactAmountOfCandidates_ThenTheRequiredNumberOfCandidatesInTeamAndRunnerUpEmpty()
     {
-        //Arrange + Act
-        var sut = new TeamBuilder(_developers.Count(),
-            _developers,
-            new LanguageLearningCalculator(15, new List<Language>() { Language.CSharp, Language.Python }));
+        //Arrange 
+        var calculator = new CandidateLanguageLearningCalculator(15, new List<Language>() { Language.CSharp, Language.Python });
+        var ranker = new CandidateRanker(TestHelpers.Developers, calculator);
+        
+        //Act
+        var sut = new TeamBuilder(TestHelpers.Developers.Count(), ranker);
 
         //Assert
-        sut.Team.Count().Should().Be(_developers.Count());
+        sut.Team.Count().Should().Be(TestHelpers.Developers.Count());
         sut.RunnersUp.Should().BeEmpty();
     }
     
@@ -91,34 +50,26 @@ public class TeamBuilderTests
     [InlineData(105484)]
     public void Ctor_WhenCreatedWithNotEnoughCandidates_ThenValidationExceptionThrown(int requiredDevelopers)
     {
-        //Arrange + Act
-        var act = () => new TeamBuilder(requiredDevelopers,
-            _developers,
-            new LanguageLearningCalculator(15, new List<Language>() { Language.CSharp, Language.Python }));
+        //Arrange 
+        var calculator = new CandidateLanguageLearningCalculator(15, new List<Language>() { Language.CSharp, Language.Python });
+        var ranker = new CandidateRanker(TestHelpers.Developers, calculator);
+        
+        //Act
+        var act = () => new TeamBuilder(requiredDevelopers, ranker);
 
         //Assert
         act.Should().Throw<ValidationException>().WithMessage("Not enough developers to build the team");
     }
-    
-    [Fact]
-    public void Ctor_WhenCreatedWithNoCandidates_ThenThenValidationExceptionThrown()
-    {
-        //Arrange + Act
-        var act = () => new TeamBuilder(1,
-            new List<Developer>(),
-            new LanguageLearningCalculator(15, new List<Language>() { Language.CSharp, Language.Python }));
 
-        //Assert
-        act.Should().Throw<ValidationException>().WithMessage("No candidates provided");
-    }
-    
     [Fact]
     public void Ctor_WhenCreated_ThenTimeBeforeOperationalIsTheLongestMemberOfTeam()
     {
-        //Arrange + Act
-        var sut = new TeamBuilder(3,
-            _developers,
-            new LanguageLearningCalculator(15, new List<Language>() { Language.CSharp, Language.Python }));
+        //Arrange 
+        var calculator = new CandidateLanguageLearningCalculator(15, new List<Language>() { Language.CSharp, Language.Python });
+        var ranker = new CandidateRanker(TestHelpers.Developers, calculator);
+        
+        //Act
+        var sut = new TeamBuilder(3, ranker);
 
         //Assert
         sut.TimeBeforeOperational.Should().Be(8.832915093538048);
