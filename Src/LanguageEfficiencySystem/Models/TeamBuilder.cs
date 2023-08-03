@@ -17,6 +17,12 @@ public class TeamBuilder
     {
         _calculator = calculator;
         candidates = candidates.ToList();
+
+        //Any is awful for performance and should be avoided as of .NET 8 analyzers
+        if (candidates.Count() < 1)
+        {
+            throw new ValidationException(message: "No candidates provided");
+        }
         
         if (numberOfDevelopersRequired > candidates.Count())
         {

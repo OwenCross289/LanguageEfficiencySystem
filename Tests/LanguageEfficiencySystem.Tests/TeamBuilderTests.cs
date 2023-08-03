@@ -57,7 +57,7 @@ public class TeamBuilderTests
     [InlineData(3)]
     [InlineData(4)]
     [InlineData(5)]
-    public void Ctor_WhenCreatedTooManyDevelopers_ThenTheRequiredNumberOfDevelopersInTeamAndRestInRunnersUp(int requiredDevelopers)
+    public void Ctor_WhenCreatedTooManyCandidates_ThenTheRequiredNumberOfCandidatesInTeamAndRestInRunnersUp(int requiredDevelopers)
     {
         //Arrange + Act
         var sut = new TeamBuilder(requiredDevelopers,
@@ -71,7 +71,7 @@ public class TeamBuilderTests
     }
     
     [Fact]
-    public void Ctor_WhenCreatedWithTheExactAmountOfDevelopers_ThenTheRequiredNumberOfDevelopersInTeamAndRunnerUpEmpty()
+    public void Ctor_WhenCreatedWithTheExactAmountOfCandidates_ThenTheRequiredNumberOfCandidatesInTeamAndRunnerUpEmpty()
     {
         //Arrange + Act
         var sut = new TeamBuilder(_developers.Count(),
@@ -89,7 +89,7 @@ public class TeamBuilderTests
     [InlineData(99)]
     [InlineData(475)]
     [InlineData(105484)]
-    public void Ctor_WhenCreatedWithNotEnoughDevelopers_ThenAllCandidatesInTeamAndNoneInRunnersUp(int requiredDevelopers)
+    public void Ctor_WhenCreatedWithNotEnoughCandidates_ThenValidationExceptionThrown(int requiredDevelopers)
     {
         //Arrange + Act
         var act = () => new TeamBuilder(requiredDevelopers,
@@ -98,6 +98,18 @@ public class TeamBuilderTests
 
         //Assert
         act.Should().Throw<ValidationException>().WithMessage("Not enough developers to build the team");
+    }
+    
+    [Fact]
+    public void Ctor_WhenCreatedWithNoCandidates_ThenThenValidationExceptionThrown()
+    {
+        //Arrange + Act
+        var act = () => new TeamBuilder(1,
+            new List<Developer>(),
+            new LanguageLearningCalculator(15, new List<Language>() { Language.CSharp, Language.Python }));
+
+        //Assert
+        act.Should().Throw<ValidationException>().WithMessage("No candidates provided");
     }
     
     [Fact]
