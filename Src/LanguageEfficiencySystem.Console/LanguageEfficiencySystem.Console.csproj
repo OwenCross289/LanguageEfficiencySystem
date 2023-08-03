@@ -9,7 +9,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\LanguageEfficiencySystem\LanguageEfficiencySystem.csproj" />
+        <ProjectReference Include="..\LanguageEfficiencySystem\LanguageEfficiencySystem.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Spectre.Console" Version="0.47.0"/>
     </ItemGroup>
 
 </Project>

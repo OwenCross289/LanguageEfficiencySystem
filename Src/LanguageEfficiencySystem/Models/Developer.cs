@@ -1,6 +1,5 @@
 namespace LanguageEfficiencySystem.Models;
 
-public record Developer(string Name, 
-    int Age, 
-    int YearsOfExperience, 
-    IReadOnlyCollection<Language> Languages);
+//Could write a validator for this aka cant have more years of experience than age.
+//Would use FluentValidation for this
+public record Developer(string Name, int Age, int YearsOfExperience, IEnumerable<Language> KnownLanguages);
