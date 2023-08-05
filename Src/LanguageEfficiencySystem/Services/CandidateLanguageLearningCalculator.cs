@@ -26,7 +26,8 @@ public class CandidateLanguageLearningCalculator
             return 0;
         }
 
-        //Could use builder stuff but it would need a record with one value in it. Just seems overkill and weird
+        //Could use builder stuff but it would need a record with one value in it. Just seems overkill, but
+        //would enable better testing on the modifier.
         var modifier = 1.0;
         modifier = AccountForCustomLanguageRules(languageToLearn, dev, modifier);
         modifier = AccountForAge(dev.Age, modifier);

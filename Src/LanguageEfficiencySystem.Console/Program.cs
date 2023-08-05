@@ -4,6 +4,7 @@ using LanguageEfficiencySystem.Console;
 using LanguageEfficiencySystem.Models;
 using LanguageEfficiencySystem.Services;
 
+//Could swap this for a db to allow for inputting devs without recompilation (Repository pattern)
 var developers = new List<Developer>
 {
     new("Kari", 32, 10, new ReadOnlyCollection<Language>(new List<Language>
@@ -48,10 +49,11 @@ var developers = new List<Developer>
     }))
 };
 
+//These values should come in from a config file or user input
 const int averageDaysToLearn = 15;
 const int developersRequired = 3;
-
 var languagesToLearn = new List<Language> { Language.CSharp, Language.Python };
+
 var calculator = new CandidateLanguageLearningCalculator(averageDaysToLearn, languagesToLearn);
 var ranker = new CandidateRanker(developers, calculator);
 var teamBuilder = new TeamBuilder(developersRequired, ranker);
