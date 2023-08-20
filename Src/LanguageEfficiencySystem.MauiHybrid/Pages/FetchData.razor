@@ -1,0 +1,90 @@
+﻿@page "/fetchdata"
+
+@using LanguageEfficiencySystem.Models
+@using LanguageEfficiencySystem.Repositories
+@using LanguageEfficiencySystem.Services
+@inject IDeveloperRepository DevRepository
+
+<h1>Team Builder</h1>
+
+<p>Code4Cash AS has been given an assignment that requires 3 developers to work with both C# and Python.</p>
+<p>1. Which employees should be moved to this new team?</p>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Age</th>
+            <th>YOE</th>
+            @foreach (var language in _languagesToLearn)
+            {
+                <th>@language.ToString() (days)</th>
+            }
+            <th>Total (days)</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var candidate in _teamBuilder.Team)
+        {
+            <tr>
+                <td>@candidate.Dev.Name</td>
+                <td>@candidate.Dev.Age</td>
+                <td>@candidate.Dev.YearsOfExperience</td>
+                @foreach (var langResults in @candidate.TimesToLearn)
+                {
+                    <td>@Math.Round(langResults.Value, 2)</td>
+                }
+                <td>@Math.Round(candidate.TotalTimeToLearn, 2)</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+<p>2. How long will it take before the team is operational?</p>
+<p>It will take @Math.Round(_teamBuilder.TimeBeforeOperational, 2) days until operational </p>
+
+<p>3. In what order should the remaining employees be considered if the team is to be expanded?</p>
+<table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Age</th>
+            <th>YOE</th>
+            @foreach (var language in _languagesToLearn)
+            {
+                <th>@language.ToString() (days)</th>
+            }
+            <th>Total Days</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var candidate in _teamBuilder.RunnersUp)
+        {
+            <tr>
+                <td>@candidate.Dev.Name</td>
+                <td>@candidate.Dev.Age</td>
+                <td>@candidate.Dev.YearsOfExperience</td>
+                @foreach (var langResults in @candidate.TimesToLearn)
+                {
+                    <td>@Math.Round(langResults.Value, 2)</td>
+                }
+                <td>@Math.Round(candidate.TotalTimeToLearn, 2)</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+
+@code {
+    private TeamBuilder _teamBuilder;
+    private List<Language> _languagesToLearn;
+
+    protected override async Task OnInitializedAsync()
+    {
+        const int averageDaysToLearn = 15;
+        const int developersRequired = 3;
+        _languagesToLearn = new List<Language> { Language.CSharp, Language.Python };
+
+        var calculator = new CandidateLanguageLearningCalculator(averageDaysToLearn, _languagesToLearn);
+        var ranker = new CandidateRanker(DevRepository, calculator);
+        _teamBuilder = new TeamBuilder(developersRequired, ranker);
+    }
+}
