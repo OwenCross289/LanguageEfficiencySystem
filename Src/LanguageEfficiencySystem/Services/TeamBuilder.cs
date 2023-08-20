@@ -13,7 +13,7 @@ public class TeamBuilder
     {
         var orderedCandidates = ranker.RankCandidates().ToList();
         
-        if (numberOfDevelopersRequired > orderedCandidates.Count())
+        if (numberOfDevelopersRequired > orderedCandidates.Count)
         {
             throw new ValidationException("Not enough developers to build the team");
         }

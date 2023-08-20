@@ -6,35 +6,45 @@ namespace LanguageEfficiencySystem.Tests;
 
 public class CandidateLanguageLearningCalculatorTests
 {
-    [Fact]
-    public void CalculateCandidateEfficiency_WhenTheDevKnowsTheLanguage_ThenResultHasZeroTimeToLearn()
+    [GwtFact(
+        given: $"a {nameof(CandidateLanguageLearningCalculator.CalculateCandidateEfficiency)}",
+        when: "a candidate knows the language",
+        then: "total time to learn is 0")]
+    public void T1()
     {
         //Arrange 
         const Language languageToLearn = Language.CSharp;
         var languagesToLearn = new List<Language>() { languageToLearn };
         
-        var dev = new Developer("Owen",
-            24,
-            5,
-            new ReadOnlyCollection<Language>(new List<Language>() { languageToLearn }));
+        var candidate = new Developer("Owen",
+            Age: 24,
+            YearsOfExperience: 5,
+            KnownLanguages: new ReadOnlyCollection<Language>(new List<Language>() { languageToLearn }));
         var sut = new CandidateLanguageLearningCalculator(15, languagesToLearn);
-        var expected = new CandidateLanguageLearningResult(dev,
-            new Dictionary<Language, double>() { { languageToLearn, 0 } }, 0);
+        var expected = new CandidateLanguageLearningResult(
+            candidate,
+            TimesToLearn: new Dictionary<Language, double>() { { languageToLearn, 0 } },
+            TotalTimeToLearn: 0);
         
-        //Act + Assert
-        sut.CalculateCandidateEfficiency(dev).Should().BeEquivalentTo(expected);
+        //Act 
+        var actual = sut.CalculateCandidateEfficiency(candidate);
+        
+        //Assert
+        actual.Should().BeEquivalentTo(expected);
     }
     
-   [Fact]
-   public void CalculateCandidateEfficiency_WhenTheDevHasASub20PercentAverage_ThenReturns20PercentOfAverageDaysToLearn()
+    [GwtFact(
+        given: $"a {nameof(CandidateLanguageLearningCalculator.CalculateCandidateEfficiency)}",
+        when: "a candidate has less than 20% of the maximum time to learn",
+        then: "value is rounded up to 20%")]
+   public void T2()
    {
        //Arrange 
        var languagesToLearn = new List<Language>() { Language.CSharp };
-       const int averageTimeToLearn = 15;
-       var dev = new Developer("Owen",
-           24,
-           100,
-           new ReadOnlyCollection<Language>(new List<Language>()
+       var candidate = new Developer("Owen",
+           Age: 24,
+           YearsOfExperience: 100,
+           KnownLanguages: new ReadOnlyCollection<Language>(new List<Language>()
            {
                Language.Cobol,
                Language.Vb6,
@@ -48,45 +58,66 @@ public class CandidateLanguageLearningCalculatorTests
                Language.Php,
                Language.Ruby
            }));
-       var sut = new CandidateLanguageLearningCalculator(averageTimeToLearn, languagesToLearn);
-       var expected =
-           new CandidateLanguageLearningResult(dev, new Dictionary<Language, double>() { { Language.CSharp, 3 } }, 3);
+       var sut = new CandidateLanguageLearningCalculator(averageDaysToLearn: 15, languagesToLearn);
+       var expected =new CandidateLanguageLearningResult(
+           candidate, 
+           TimesToLearn: new Dictionary<Language, double>() { { Language.CSharp, 3 } }, 
+           TotalTimeToLearn: 3);
 
-       //Act + Assert
-       sut.CalculateCandidateEfficiency(dev).Should().BeEquivalentTo(expected);
+       //Act
+       var actual = sut.CalculateCandidateEfficiency(candidate);
+       
+       //Assert
+       actual.Should().BeEquivalentTo(expected);
    }
    
-    [Fact]
-    public void CalculateCandidateEfficiency_WhenADevAndMultipleLanguages_ShouldReturnLanguagesAndTheirTimeToLearn_()
+   [GwtFact(
+       given: $"a {nameof(CandidateLanguageLearningCalculator.CalculateCandidateEfficiency)}",
+       when: "a candidate knows multiple languages",
+       then: "a dictionary of languages and their total time to learn is returned with the sum of the dictionary")]
+    public void T3()
     {
         //Arrange 
         var languagesToLearn = new List<Language>() { Language.CSharp, Language.Python };
-        var dev = new Developer("Owen",
-            24,
-            5,
-            new ReadOnlyCollection<Language>(new List<Language>() { Language.Cpp, Language.Java }));
-        var expected = new CandidateLanguageLearningResult(dev, new Dictionary<Language, double>
-        {
-            { Language.CSharp, 4.248585782137474 },
-            { Language.Python, 10.196605877129937 }
-        }, 14.445191659267412);
+        var candidate = new Developer("Owen",
+            Age: 24,
+            YearsOfExperience: 5,
+            KnownLanguages: new ReadOnlyCollection<Language>(new List<Language>() { Language.Cpp, Language.Java }));
+        var expected = new CandidateLanguageLearningResult(
+            candidate, 
+            TimesToLearn: new Dictionary<Language, double>
+            {
+                { Language.CSharp, 4.248585782137474 },
+                { Language.Python, 10.196605877129937 }
+            },
+            TotalTimeToLearn: 14.445191659267412);
         
-        var sut = new CandidateLanguageLearningCalculator(15, languagesToLearn);
+        var sut = new CandidateLanguageLearningCalculator(averageDaysToLearn: 15, languagesToLearn);
 
-        //Act + Assert
-        sut.CalculateCandidateEfficiency(dev).Should().BeEquivalentTo(expected);
+        //Act
+        var actual = sut.CalculateCandidateEfficiency(candidate);
+        
+        //Assert
+        actual.Should().BeEquivalentTo(expected);
     }
 
-
-    [Theory, MemberData(nameof(CalculateCandidateEfficiencyMemberData))]
-    public void CalculateCandidateEfficiency_WhenGivenSampleDevelopersToLeanCsharpAndPython_ThenTheTimesTakenAreCorrect(Developer dev, CandidateLanguageLearningResult expected)
+    
+    [GwtTheory(
+         given: $"a {nameof(CandidateLanguageLearningCalculator.CalculateCandidateEfficiency)}, with multiple candidates",
+         when: "efficiency is calculated for CSharp and Python",
+         then: "expected values are returned"), 
+     MemberData(nameof(CalculateCandidateEfficiencyMemberData))]
+    public void T4(Developer dev, CandidateLanguageLearningResult expected)
     {
         //Arrange 
         var languagesToLearn = new List<Language>() { Language.CSharp, Language.Python };
-        var sut = new CandidateLanguageLearningCalculator(15, languagesToLearn);
+        var sut = new CandidateLanguageLearningCalculator(averageDaysToLearn: 15, languagesToLearn);
 
-        //Act + Assert
-        sut.CalculateCandidateEfficiency(dev).Should().BeEquivalentTo(expected);
+        //Act
+        var actual = sut.CalculateCandidateEfficiency(dev);
+        
+        //Assert
+        actual.Should().BeEquivalentTo(expected);
     }
     
     public static IEnumerable<object[]> CalculateCandidateEfficiencyMemberData => 

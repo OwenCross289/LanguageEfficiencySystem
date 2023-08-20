@@ -1,32 +1,45 @@
 using System.ComponentModel.DataAnnotations;
 using LanguageEfficiencySystem.Models;
+using LanguageEfficiencySystem.Repositories;
 using LanguageEfficiencySystem.Services;
 
 namespace LanguageEfficiencySystem.Tests;
 
 public class CandidateRankerTests
 {
-    [Fact]
-    public void Ctor_WhenCreatedWithNoCandidates_ThenValidationExceptionThrown()
+    private readonly IDeveloperRepository _devRepositorySub = Substitute.For<IDeveloperRepository>();
+
+    [GwtFact(
+        given: $"a {nameof(CandidateRanker)}",
+        when: "constructed with no candidates",
+        then: $"a {nameof(ValidationException)} is thrown")]
+    public void T1()
     {
-        //Arrange 
-        var calculator = new CandidateLanguageLearningCalculator(15, new List<Language>() { Language.CSharp, Language.Python });
+        //Arrange
+        _devRepositorySub.Get().Returns(new List<Developer>());
+        var languagesToLearn = new List<Language>() { Language.CSharp, Language.Python };
+        var calculator = new CandidateLanguageLearningCalculator(averageDaysToLearn: 15, languagesToLearn);
         
         //Act
-        var act = () => new CandidateRanker(new List<Developer>(), calculator);
+        var act = () => new CandidateRanker(_devRepositorySub, calculator);
 
         //Assert
         act.Should().Throw<ValidationException>().WithMessage("No candidates provided");
     }
     
-    [Fact]
+    [GwtFact(
+        given: $"a {nameof(CandidateRanker)}",
+        when: "constructed with candidates",
+        then: "the candidates are ordered correctly")]
     public void RankCandidates_WhenCalled_ThenAOrderedListOfCandidatesIsReturned()
     {
-        //Arrange 
-        var calculator = new CandidateLanguageLearningCalculator(15, new List<Language>() { Language.CSharp, Language.Python });
-        var sut = new CandidateRanker(TestHelpers.Developers, calculator);
+        //Arrange
+        _devRepositorySub.Get().Returns(TestHelpers.Developers);
+        var languagesToLearn = new List<Language>() { Language.CSharp, Language.Python };
+        var calculator = new CandidateLanguageLearningCalculator(averageDaysToLearn: 15, languagesToLearn);
+        var sut = new CandidateRanker(_devRepositorySub, calculator);
+        
         //Act
-
         var actual = sut.RankCandidates().ToList();
 
         //Assert
