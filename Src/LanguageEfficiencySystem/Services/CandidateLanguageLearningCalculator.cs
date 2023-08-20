@@ -28,7 +28,7 @@ public class CandidateLanguageLearningCalculator
         }
         
         var modifier = new LanguageLearningModifierBuilder(1);
-        modifier.BuildForCustomLanguageRules(languageToLearn, dev);
+        modifier.BuildForCustomLanguageRules(languageToLearn, dev.KnownLanguages.ToList());
         modifier.BuildForAge(dev.Age);
         modifier.BuildForKnownLanguages(dev.KnownLanguages);
         modifier.BuildForYearsOfExperience(dev.YearsOfExperience);

@@ -45,20 +45,20 @@ public class LanguageLearningModifierBuilder
         _modifier *= Math.Pow(percentagePerYearOfExperience, yearsOfExperience);
     }
     
-    public void BuildForCustomLanguageRules(Language languageToLearn, Developer dev)
+    public void BuildForCustomLanguageRules(Language languageToLearn, List<Language> knownLanguages)
     {
         const double percentageForCppAndJava = 2.0;
         const double percentageForCppOrJava = 1.2;
-
+        
         //Convert to switch if this grows? and also refactor out each language to have it's own function
         if (languageToLearn is Language.CSharp)
         {
-            if (dev.KnownLanguages.Contains(Language.Cpp) && dev.KnownLanguages.Contains(Language.Java))
+            if (knownLanguages.Contains(Language.Cpp) && knownLanguages.Contains(Language.Java))
             {
                 _modifier *= percentageForCppAndJava;
             }
             
-            if (dev.KnownLanguages.Contains(Language.Cpp) || dev.KnownLanguages.Contains(Language.Java))
+            else if (knownLanguages.Contains(Language.Cpp) || knownLanguages.Contains(Language.Java))
             {
                 _modifier *= percentageForCppOrJava;
             }

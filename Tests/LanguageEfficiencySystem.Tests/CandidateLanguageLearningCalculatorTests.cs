@@ -87,10 +87,10 @@ public class CandidateLanguageLearningCalculatorTests
             candidate, 
             TimesToLearn: new Dictionary<Language, double>
             {
-                { Language.CSharp, 4.248585782137474 },
+                { Language.CSharp, 5.098302938564968 },
                 { Language.Python, 10.196605877129937 }
             },
-            TotalTimeToLearn: 14.445191659267412);
+            TotalTimeToLearn: 15.294908815694905);
         
         var sut = new CandidateLanguageLearningCalculator(averageDaysToLearn: 15, languagesToLearn);
 
@@ -120,7 +120,7 @@ public class CandidateLanguageLearningCalculatorTests
         actual.Should().BeEquivalentTo(expected);
     }
     
-    public static IEnumerable<object[]> CalculateCandidateEfficiencyMemberData => 
+      public static IEnumerable<object[]> CalculateCandidateEfficiencyMemberData => 
         new List<object[]>
         {
             new object[] { TestHelpers.Developers[0], new CandidateLanguageLearningResult(TestHelpers.Developers[0], 
